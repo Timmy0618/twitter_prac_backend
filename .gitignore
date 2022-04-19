@@ -1,0 +1,5 @@
+node_modules/
+myapp/config/pinata.js
+.env
+mongo/
+.DS_Store
