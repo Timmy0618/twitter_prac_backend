@@ -1,5 +1,6 @@
 node_modules/
-myapp/config/pinata.js
 .env
 mongo/
 .DS_Store
+myapp/config/jwt.js
+myapp/config/database.js
