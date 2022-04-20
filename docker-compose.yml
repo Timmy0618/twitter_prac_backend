@@ -74,7 +74,8 @@ services:
 
   mongo:
     image: mongo
-    volumes: #volumes對應虛擬目錄/實體目錄
+    volumes:
+      #volumes對應虛擬目錄/實體目錄
       - ./mongo/config:/data/configdb
       - ./mongo/data:/data/db
     restart: always
@@ -85,9 +86,8 @@ services:
       MONGO_INITDB_ROOT_PASSWORD: example
     networks:
       mynet:
-      extnet:
-        ipv4_address: ${IPv4_MongoDb}
-    
+
+
   mongo-express:
     image: mongo-express:0.54.0 #使用docker hub映像檔案
     restart: always
@@ -100,13 +100,8 @@ services:
       ME_CONFIG_MONGODB_URL: mongodb://root:example@mongo:27017/
       ME_CONFIG_MONGODB_ENABLE_ADMIN: "true"
     networks:
-      extnet:
-        ipv4_address: ${IPv4_MongoDbExpress}
+      mynet:
+
 
 networks:
-  extnet:
-    driver: bridge
-    ipam:
-      config:
-        - subnet: ${Network_Subnet}
   mynet:
