@@ -1,42 +1,11 @@
-const multer = require("multer");
 var express = require("express");
 var jwt = require("express-jwt");
 var jwtConfig = require("../config/jwt");
+var upload = require("../config/multer");
 var auth = require("../controller/AuthController");
-require("../config/database");
-
-var router = express.Router();
-const PinataController = require("../controller/PinataController");
-const FileController = require("../controller/FileController");
 const MainController = require("../controller/MainController");
 
-// 初始化設定
-const upload = multer({
-  // storage: multer.memoryStorage(),
-  limits: {
-    fileSize: 2 * 1024 * 1024, // 限制 2 MB
-  },
-  fileFilter(req, file, callback) {
-    // 限制檔案格式為 image
-    if (!file.mimetype.match(/^image/)) {
-      callback((new Error().message = "檔案格式錯誤"));
-    } else {
-      callback(null, true);
-    }
-  },
-});
-
-router.post(
-  "/api/v1/uploadFile",
-  upload.single("image"),
-  async (req, res, next) => {
-    FileController.api.uploadFile(req, res);
-  }
-);
-
-router.get("/api/v1/mongo/getImage", async (req, res, next) => {
-  FileController.api.getImage(req, res);
-});
+var router = express.Router();
 
 //-----------
 //----文章----
