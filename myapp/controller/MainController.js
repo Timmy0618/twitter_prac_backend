@@ -110,7 +110,7 @@ exports.api.uploadAvatar = async (req, res) => {
     let user = await mongoDb.update(
       "users",
       { user_id: userId },
-      { avatar: uuid }
+      { $set: { avatar: uuid } }
     );
 
     response = responser();
@@ -125,9 +125,115 @@ exports.api.uploadAvatar = async (req, res) => {
 exports.api.getFriends = async (req, res) => {
   let response = {};
   try {
-    let user = await mongoDb.find("users", {}, { user_id: 1, avatar: 1 });
+    const { userId: userId } = req.user;
+
+    let userFriendList = await mongoDb.aggregate("users", [
+      { $match: { _id: ObjectId(userId) } },
+      { $project: { friendList: 1, _id: 0 } },
+    ]);
+
+    let userFriendId = userFriendList[0].friendList.map(function (i) {
+      return ObjectId(i);
+    });
+
+    let friendList = await mongoDb.aggregate("users", [
+      {
+        $match: {
+          $and: [{ _id: { $in: userFriendId } }],
+        },
+      },
+      { $project: { user_id: 1, avatar: 1, _id: 1 } },
+    ]);
+
     response = responser();
-    response.Data = user;
+    response.Data = friendList;
+  } catch (err) {
+    console.log(err);
+    response = responser(err.code);
+  }
+  res.json(response);
+};
+
+exports.api.recommendFriends = async (req, res) => {
+  let response = {};
+  try {
+    const { userId: userId } = req.user;
+
+    let userFriendList = await mongoDb.aggregate("users", [
+      { $match: { _id: ObjectId(userId) } },
+      { $project: { friendList: 1, _id: 0 } },
+    ]);
+
+    let userFriendId = userFriendList[0].friendList.map(function (i) {
+      return ObjectId(i);
+    });
+
+    let friendList = await mongoDb.aggregate("users", [
+      {
+        $match: {
+          $and: [
+            { user_id: { $ne: ObjectId(userId) } },
+            { _id: { $nin: userFriendId } },
+          ],
+        },
+      },
+      { $project: { user_id: 1, avatar: 1, _id: 1 } },
+      { $sample: { size: 3 } },
+    ]);
+
+    response = responser();
+    response.Data = friendList;
+  } catch (err) {
+    console.log(err);
+    response = responser(err.code);
+  }
+  res.json(response);
+};
+
+exports.api.addFriends = async (req, res) => {
+  let response = {};
+  try {
+    const { userId: userId } = req.user;
+    const { friendId } = req.body;
+
+    let result = await mongoDb.update(
+      "users",
+      { _id: ObjectId(userId) },
+      { $push: { friendList: friendId } }
+    );
+
+    response = responser();
+  } catch (err) {
+    console.log(err);
+    response = responser(err.code);
+  }
+  res.json(response);
+};
+
+exports.api.deleteFriends = async (req, res) => {
+  let response = {};
+  try {
+    const { userId: userId } = req.user;
+    const friendId = req.params.userId;
+
+    let userFriendList = await mongoDb.aggregate("users", [
+      { $match: { _id: ObjectId(userId) } },
+      { $project: { friendList: 1, _id: 0 } },
+    ]);
+
+    let friendList = userFriendList[0].friendList.filter(
+      (value, index, array) => {
+        return value != friendId;
+      }
+    );
+
+    let result = await mongoDb.update(
+      "users",
+      { _id: ObjectId(userId) },
+      { $set: { friendList: friendList } }
+    );
+
+    response = responser();
   } catch (err) {
     console.log(err);
     response = responser(err.code);
@@ -151,6 +257,8 @@ function responser(errCode = 200) {
       break;
 
     default:
+      response.Code = "500";
+      response.Msg = "Server Error";
       break;
   }
 

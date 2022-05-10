@@ -1,5 +1,15 @@
 var mongoDb = require("../lib/mongodb");
 
+exports.updateOne = async function (
+  collectionTable,
+  whereObject,
+  updateObject
+) {
+  let collection = mongoDb.collection(collectionTable);
+  const updateResult = collection.updateOne(whereObject, updateObject);
+  return updateResult;
+};
+
 exports.insertMany = async function (collectionTable, insertArray) {
   let collection = mongoDb.collection(collectionTable);
   const insertResult = await collection.insertMany(insertArray);
@@ -8,7 +18,10 @@ exports.insertMany = async function (collectionTable, insertArray) {
 
 exports.find = async function (collectionTable, findObject, fieldsObject = {}) {
   let collection = mongoDb.collection(collectionTable);
-  const findResult = await collection.find(findObject, fieldsObject).toArray();
+  const findResult = await collection
+    .find(findObject)
+    .project(fieldsObject)
+    .toArray();
   return findResult;
 };
 
@@ -29,9 +42,7 @@ exports.findSort = async function (
 
 exports.update = async function (collectionTable, findObject, setObject) {
   let collection = mongoDb.collection(collectionTable);
-  const findResult = await collection.updateOne(findObject, {
-    $set: setObject,
-  });
+  const findResult = await collection.updateOne(findObject, setObject);
   return findResult;
 };
 
