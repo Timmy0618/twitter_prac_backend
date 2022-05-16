@@ -4,6 +4,8 @@ var jwtConfig = require("../config/jwt");
 var upload = require("../config/multer");
 var auth = require("../controller/AuthController");
 const MainController = require("../controller/MainController");
+const FriendController = require("../controller/FriendController");
+
 
 var router = express.Router();
 
@@ -64,22 +66,22 @@ router.post(
 
 router.get("/api/v1/friends", jwt(jwtConfig), function (req, res) {
   auth(req, res);
-  MainController.api.getFriends(req, res);
+  FriendController.api.getFriends(req, res);
 });
 
-router.post("/api/v1/friend", jwt(jwtConfig), function (req, res) {
+router.post("/api/v1/friends", jwt(jwtConfig), function (req, res) {
   auth(req, res);
-  MainController.api.addFriends(req, res);
+  FriendController.api.addFriends(req, res);
 });
 
-router.delete("/api/v1/friend/:userId", jwt(jwtConfig), function (req, res) {
+router.delete("/api/v1/friends/:userId", jwt(jwtConfig), function (req, res) {
   auth(req, res);
-  MainController.api.deleteFriends(req, res);
+  FriendController.api.deleteFriends(req, res);
 });
 
-router.get("/api/v1/recommendFriends", jwt(jwtConfig), function (req, res) {
+router.get("/api/v1/friends/recommend", jwt(jwtConfig), function (req, res) {
   auth(req, res);
-  MainController.api.recommendFriends(req, res);
+  FriendController.api.recommendFriends(req, res);
 });
 
 module.exports = router;
