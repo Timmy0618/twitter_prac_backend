@@ -1,5 +1,5 @@
 # twitter_prac_backend
-it a twitter practice, now i am developing chatroom
+it a twitter practice, now I am developing chatroom
 ## Quickstart
 1. clone the project
 2. modify env.example
